@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -15,6 +15,8 @@ namespace UdpChat
         private readonly int remotePort;
         private readonly string userName;
 
+        private Thread receiveThread;
+
         public FormChat(IPAddress multicastAddress, IPAddress localAddress, int localPort, int remotePort, string name)
         {
             InitializeComponent();
@@ -26,25 +28,35 @@ namespace UdpChat
             this.remotePort = remotePort;
             this.userName = name;
 
-            var receiveThread = new Thread(ReceiveMessage);
+            receiveThread = new Thread(ReceiveMessage);
             receiveThread.Start();
         }
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(messageText.Text))
-                return;
+            if (!string.IsNullOrEmpty(messageText.Text))
+            {
+                SendMessage(messageText.Text);
+                messageText.Clear();
+            }
+        }
 
+        private void SendMessage(string text)
+        {
             var senderClient = new UdpClient();
             var endPoint = new IPEndPoint(multicastAddress, remotePort);
 
             try
             {
-                var message = $"{userName} [{localAddress}]: {messageText.Text}";
-                byte[] data = Encoding.Unicode.GetBytes(message);
-                senderClient.Send(data, data.Length, endPoint);
+                var message = new Message
+                {
+                    UserName = userName,
+                    UserIP = localAddress.ToString(),
+                    Text = text
+                };
 
-                messageText.Clear();
+                byte[] data = message.Serialize();
+                senderClient.Send(data, data.Length, endPoint);
             }
             catch (Exception ex)
             {
@@ -66,18 +78,13 @@ namespace UdpChat
             {
                 while (true)
                 {
-                    byte[] data = receiver.Receive(ref remoteIP);
+                    byte[] data = receiver.Receive(ref remoteIP);                   
+                    var message = Message.Deserialize(data);
 
-                    if (!remoteIP.Address.Equals(localAddress))
-                    {
-                        var message = Encoding.Unicode.GetString(data);
+                    var append = $"[{DateTime.Now.ToLongTimeString()}] - {message.UserName} [{message.UserIP}]: {message.Text}";
+                    Color color = remoteIP.Address.Equals(localAddress) ? Color.Blue : Color.Black;
 
-                        Invoke(new MethodInvoker(() =>
-                        {
-                            chatTextBox.AppendText($"[{DateTime.Now.ToLongTimeString()}] - {message}\n");
-                            chatTextBox.ScrollToCaret();
-                        }));
-                    }
+                    appendLine(append, color);
                 }
             }
             catch (Exception ex)
@@ -94,6 +101,24 @@ namespace UdpChat
         {
             if (e.KeyData == Keys.Enter)
                 sendButton_Click(sendButton, null);
+        }
+
+        private void appendLine(string text, Color color)
+        {
+            Invoke(new MethodInvoker(() =>
+            {
+                chatTextBox.SelectionStart = chatTextBox.TextLength;
+                chatTextBox.SelectionLength = 0;
+                chatTextBox.SelectionColor = color;
+                chatTextBox.AppendText($"{text}\n");
+                chatTextBox.SelectionColor = chatTextBox.ForeColor;
+                chatTextBox.ScrollToCaret();
+            }));
+        }
+
+        private void FormChat_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            receiveThread.Abort();
         }
     }
 }

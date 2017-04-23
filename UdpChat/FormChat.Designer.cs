@@ -60,6 +60,7 @@
             // messageText
             // 
             this.messageText.Location = new System.Drawing.Point(7, 22);
+            this.messageText.MaxLength = 64;
             this.messageText.Multiline = false;
             this.messageText.Name = "messageText";
             this.messageText.Size = new System.Drawing.Size(592, 72);
@@ -89,6 +90,7 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "UDP Chat";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormChat_FormClosed);
             groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 

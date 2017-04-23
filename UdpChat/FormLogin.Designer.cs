@@ -84,6 +84,15 @@
             label4.TabIndex = 5;
             label4.Text = "Remote port:";
             // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new System.Drawing.Point(13, 140);
+            label5.Name = "label5";
+            label5.Size = new System.Drawing.Size(79, 17);
+            label5.TabIndex = 9;
+            label5.Text = "IP address:";
+            // 
             // nameText
             // 
             this.nameText.Location = new System.Drawing.Point(132, 10);
@@ -99,7 +108,7 @@
             this.multicastText.Name = "multicastText";
             this.multicastText.Size = new System.Drawing.Size(218, 22);
             this.multicastText.TabIndex = 3;
-            this.multicastText.Text = "224.0.0.0";
+            this.multicastText.Text = "224.1.0.0";
             // 
             // localPortText
             // 
@@ -135,15 +144,6 @@
             this.checkNetTimer.Enabled = true;
             this.checkNetTimer.Interval = 3000;
             this.checkNetTimer.Tick += new System.EventHandler(this.checkNetTimer_Tick);
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new System.Drawing.Point(13, 140);
-            label5.Name = "label5";
-            label5.Size = new System.Drawing.Size(79, 17);
-            label5.TabIndex = 9;
-            label5.Text = "IP address:";
             // 
             // localIpText
             // 

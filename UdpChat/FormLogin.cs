@@ -14,6 +14,8 @@ namespace UdpChat
         public FormLogin()
         {
             InitializeComponent();
+
+            checkNetTimer_Tick(null, null);
             checkNetTimer.Start();
             nameText.Text = Dns.GetHostName();
         }
